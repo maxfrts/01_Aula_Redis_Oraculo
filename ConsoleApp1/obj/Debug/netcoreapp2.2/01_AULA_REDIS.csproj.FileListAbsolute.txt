@@ -1,0 +1,11 @@
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\bin\Debug\netcoreapp2.2\01_AULA_REDIS.deps.json
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\bin\Debug\netcoreapp2.2\01_AULA_REDIS.runtimeconfig.json
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\bin\Debug\netcoreapp2.2\01_AULA_REDIS.runtimeconfig.dev.json
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\bin\Debug\netcoreapp2.2\01_AULA_REDIS.dll
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\bin\Debug\netcoreapp2.2\01_AULA_REDIS.pdb
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.csprojAssemblyReference.cache
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.csproj.CoreCompileInputs.cache
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.AssemblyInfoInputs.cache
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.AssemblyInfo.cs
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.dll
+C:\Users\logonrmlocal\Desktop\01_AULA_REDIS\ConsoleApp1\obj\Debug\netcoreapp2.2\01_AULA_REDIS.pdb
