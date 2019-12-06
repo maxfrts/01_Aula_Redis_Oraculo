@@ -1,20 +1,30 @@
 ﻿using System;
 using redis = StackExchange.Redis;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace ConsoleApp1
 {
     static class Program
     {
+        class Pergunta
+        {
+            public string id;
+            public string pergunta;
+            public string resposta;
+        }
+
         static void Main(string[] args)
         {
             try
             {
-                Console.WriteLine("Cheguei...");
+                Console.WriteLine("Ouvindo perguntas...");
 
-                // PublishSubscriver();
-                // AdicionaEmCache();
-
-                Trabalho();
+                PublicaMensagemRabbit();
+                PublicaMensagemRedis();
 
                 Console.ReadKey();
             }
@@ -24,40 +34,96 @@ namespace ConsoleApp1
             }
         }
 
-        private static void Trabalho()
+        private static void PublicaMensagemRabbit()
         {
             try
             {
-                // var connection = redis.ConnectionMultiplexer.Connect("localhost");
-
-                var connection = GetConection("13.65.194.91:8081");
+                //Conexão com Redis de perguntas
+                var connection = GetConection("13.65.194.91:6379");
 
                 var subscriber = connection.GetSubscriber();
                 var database = connection.GetDatabase();
 
-                // pub.Subscribe("Perguntas", (canal, mensagem) =>
-                // {
-                //  Console.WriteLine(mensagem.ToString());
-                // });
-
                 var perguntas = subscriber.Subscribe("Perguntas");
 
-                // perguntas.OnMessage(x => {
-                // Console.WriteLine(x.Message.ToString());
-                // });
-
-
+                //Captura pergunta e envia para um exchange no Rabbit
                 subscriber.Subscribe("Perguntas", (ch, msg) =>
                 {
-                    var numeroPergunta = msg.ToString().Substring(0, msg.ToString().IndexOf(":"));
-                    database.HashSet(numeroPergunta, "Salvador", "Barril Dobrado");
-                    Console.WriteLine(msg.ToString());
+                    InsereMensagemRabbit(msg);
                 });
             }
-            catch 
+            catch
             {
                 throw;
             }
+        }
+
+        private static void PublicaMensagemRedis()
+        {
+            //Conexao com o Rabbit
+            var factory = new ConnectionFactory()
+            {
+                UserName = "teste",
+                Password = "teste",
+                HostName = "10.20.34.31"
+            };
+
+            var connection = factory.CreateConnection();
+            var channel = connection.CreateModel();
+
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body;
+                var msg = Encoding.UTF8.GetString(body);
+                InsereMensagemRedis(msg);
+            };
+
+        }
+
+        private static void InsereMensagemRedis(string msg)
+        {
+            var connection = GetConection("13.65.194.91:6379");
+
+            var subscriber = connection.GetSubscriber();
+            var database = connection.GetDatabase();
+            var pergunta = JsonConvert.DeserializeObject<Pergunta>(msg);
+            database.HashSet(pergunta.id, "output_pergunta", pergunta.resposta);
+        }
+
+        private static void InsereMensagemRabbit(string msg)
+        {
+            //Conexao com Rabbit
+            var factory = new ConnectionFactory()
+            {
+                UserName = "teste",
+                Password = "teste",
+                HostName = "10.20.34.31"
+            };
+
+            var connection = factory.CreateConnection();
+            var channel = connection.CreateModel();
+
+            //Trata a msg
+            var json = criaJsonPergunta(msg);
+            var body = System.Text.Encoding.UTF8.GetBytes(json);
+
+            //Publica a msg
+            channel.BasicPublish(exchange: "input_pergunta",
+            routingKey: "",
+            basicProperties: null,
+            body: body);
+        }
+
+        private static string criaJsonPergunta(string msg)
+        {
+            var pergunta = new Pergunta();
+            var split = msg.Split(":");
+            pergunta.id = split[0];
+            pergunta.pergunta = split[1];
+            pergunta.resposta = "";
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(pergunta);
         }
 
         private static void PublishSubscriver()
@@ -76,25 +142,6 @@ namespace ConsoleApp1
 
                 if ("S".Equals(retorno, StringComparison.OrdinalIgnoreCase))
                     PublishSubscriver();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        private static void AdicionaEmCache()
-        {
-            try
-            {
-                var connection = GetConection();
-                var database = connection.GetDatabase();
-
-                var _adicionando = database.StringSet("AndersonII", "Uma lista de nomes");
-
-                var _recebendo = database.StringGet("AndersonII");
-
-                Console.WriteLine(_recebendo);
             }
             catch
             {
